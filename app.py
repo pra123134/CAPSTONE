@@ -1,9 +1,4 @@
-import streamlit as st
-import google.generativeai as genai
-import PyPDF2
-import os
 from PIL import Image
-import io
 
 # Configure Gemini API
 GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_2.0FLASH"  # Replace with your API key or use os.environ["GEMINI_API_KEY"]
