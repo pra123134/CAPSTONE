@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-get_ipython().system('pip install streamlit google-generativeai PyPDF2 Pillow')
 import streamlit as st
 import google.generativeai as genai
 import PyPDF2
