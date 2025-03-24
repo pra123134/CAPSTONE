@@ -1,3 +1,7 @@
 streamlit
 PyPDF2
-google.generativea
+google.generativeai
+base64
+io
+PIL
+os
