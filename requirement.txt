@@ -1,6 +1,3 @@
 streamlit
 PyPDF2
-os
-io
-PIL
 google.generativeai
