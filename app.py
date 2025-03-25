@@ -2,7 +2,7 @@ import google.generativeai as genai
 import PyPDF2
 from PIL import Image
 import io
-import IPython.display as display
+#import IPython.display as display
 import streamlit as st
 
 # Configure Gemini API
