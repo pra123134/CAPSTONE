@@ -3,3 +3,7 @@ PyPDF2
 google.generativeai
 PILLOW
 Pillow
+pdfplumber
+base64
+io
+
