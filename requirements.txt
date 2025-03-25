@@ -4,5 +4,5 @@ google.generativeai
 PILLOW
 Pillow
 pdfplumber
-io
+
 
