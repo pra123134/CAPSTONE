@@ -7,9 +7,15 @@ import io
 import IPython.display as display
 
 # Configure Gemini API
-GEMINI_API_KEY = "AIzaSyC30u7qG4TD3UOZxNTTNayYaArkdm3v_LQ"  # Replace with your API key
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+# Configure API Key securely
+if "GOOGLE_API_KEY" in st.secrets:
+    api_key = st.secrets["GOOGLE_API_KEY"]
+    genai.configure(api_key=api_key)
+else:
+    st.error("⚠️ API Key is missing. Go to Streamlit Cloud → Settings → Secrets and add your API key.")
+    st.stop()
+
+model = genai.GenerativeModel('gemini-1.5-pro')
 
 # Function to extract text from PDF
 def extract_text_from_pdf(pdf_file):
