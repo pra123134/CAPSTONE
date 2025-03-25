@@ -1,3 +1,4 @@
+pip install --upgrade pip setuptools
 import streamlit as st
 import google.generativeai as genai
 import pdfplumber
