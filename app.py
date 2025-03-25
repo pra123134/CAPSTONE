@@ -1,5 +1,3 @@
-!pip install streamlit google-generativeai PyPDF2 Pillow
-
 import google.generativeai as genai
 import PyPDF2
 from PIL import Image
