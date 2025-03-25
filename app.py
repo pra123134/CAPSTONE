@@ -3,7 +3,7 @@ import google.generativeai as genai
 import pdfplumber
 import base64
 import io
-from PIL import Image
+from PILLOW import Image
 
 # ✅ Configure API Key securely
 if "GOOGLE_API_KEY" in st.secrets:
