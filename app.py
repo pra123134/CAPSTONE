@@ -1,12 +1,13 @@
+import os
+import csv
+import pandas as pd
+import streamlit as st
 import google.generativeai as genai
 import PyPDF2
 from PIL import Image
 import io
-#import IPython.display as display
-import streamlit as st
 
 # Configure Gemini API
-# Configure API Key securely
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
     genai.configure(api_key=api_key)
@@ -21,11 +22,11 @@ def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
     text = ""
     for page in pdf_reader.pages:
-        text += page.extract_text()
+        text += page.extract_text() if page.extract_text() else ""
     return text
 
-# Function to generate recipe using Gemini API
-def generate_recipe(user_input, image=None, pdf_text=None):
+# Function to generate a recipe using Gemini AI
+def generate_recipe(user_input="", image=None, pdf_text=""):
     prompt = f"""
     You are an expert chef. Based on the following inputs, generate a detailed recipe:
     - User Input: {user_input}
@@ -45,93 +46,48 @@ def generate_recipe(user_input, image=None, pdf_text=None):
     else:
         response = model.generate_content(prompt)
 
-    return response.text
+    return response.text if response else "No recipe generated. Try again."
 
-# Function to generate seasonal recipe using Gemini API
-def generate_recipe(ingredients, season, cuisine):
-    """Generates an innovative recipe idea based on input."""
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    prompt = (f"Create an innovative recipe using seasonal ingredients: {season}, "
-              f"local specialties: {ingredients}, and in the style of {cuisine} cuisine. "
-              "Provide a creative dish name, key ingredients, and a step-by-step preparation method.")
+# Streamlit UI
+st.title("🍽️ AI Chef Recipe Generator")
+st.write("Generate unique recipes based on text, images, PDFs, or seasonal ingredients!")
 
-    response = model.generate_content(prompt)
-    return response.text.strip() if response else "No recipe generated. Try again."
+# User choice for input method
+choice = st.radio("Choose your input method:", 
+                  ["Recipe by Name", "Recipe from Image", "Recipe from PDF", 
+                   "Seasonal Ingredients Recipe", "Leftover Ingredients Recipe"])
 
-# Jupyter Notebook/Colab App
-def main():
-    print("AI Chef Recipe Generator")
-    print("Generate recipes based on your preferences, images, or PDF documents!")
+user_input, image, pdf_text = None, None, None
 
-    # Input Choice
-    print("\nChoose your option to get Reciepe:")
-    print("1. Search Reciepe by name")
-    print("2. Reciepe from Image ")
-    print("3. Reciepe from PDF")
-    print("4. Seasonal ingradients Reciepe")
-    print("5. Reciepe  from Leftover ingradients")
-    choice = input("Enter your choice (1, 2, 3, 4 or 5): ")
+if choice == "Recipe by Name":
+    user_input = st.text_input("Enter your dietary preferences, cuisine type, or ingredients:")
 
-    user_input = None
-    image = None
-    pdf_text = None
+elif choice == "Recipe from Image":
+    uploaded_image = st.file_uploader("Upload an image of ingredients", type=["png", "jpg", "jpeg"])
+    if uploaded_image:
+        image = Image.open(uploaded_image)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    if choice == "1":
-        # Text Input
-        print("\nStep 1: Enter Your Preferences")
-        user_input = input("Enter your dietary preferences, cuisine type, or ingredients you have (e.g., 'vegan Italian with tomatoes'): ")
-    elif choice == "2":
-        # Image Input
-        print("\nStep 2: Upload an Image")
-        uploaded_image_path = input("Enter the path to your image file: ")
-        try:
-            image = Image.open(uploaded_image_path)
-            display.display(image)
-        except FileNotFoundError:
-            print("Image file not found.")
-            return
-    elif choice == "3":
-        # PDF Input
-        print("\nStep 3: Upload a PDF")
-        uploaded_pdf_path = input("Enter the path to your PDF file: ")
-        try:
-            with open(uploaded_pdf_path, 'rb') as pdf_file:
-                pdf_text = extract_text_from_pdf(pdf_file)
-            print("\nExtracted PDF Text:")
-            print(pdf_text)
-        except FileNotFoundError:
-            print("PDF file not found.")
-            return
-        except PyPDF2.errors.PdfReadError:
-            print("Invalid PDF File.")
-            return
-    elif choice == "4":
-        # Get user input (replace with your preferred method)
-        season = input("Select the current season (Spring, Summer, Autumn, Winter): ")
-        cuisine = input("Preferred cuisine style (e.g., Italian, Indian, Fusion): ")
-        ingredients = input("Enter local specialties (comma-separated): ")
+elif choice == "Recipe from PDF":
+    uploaded_pdf = st.file_uploader("Upload a PDF file", type=["pdf"])
+    if uploaded_pdf:
+        pdf_text = extract_text_from_pdf(uploaded_pdf)
+        st.text_area("Extracted Text from PDF:", pdf_text, height=150)
 
-        # Generate and print the recipe
+elif choice == "Seasonal Ingredients Recipe":
+    season = st.selectbox("Select the current season:", ["Spring", "Summer", "Autumn", "Winter"])
+    cuisine = st.text_input("Preferred cuisine style (e.g., Italian, Indian, Fusion):")
+    ingredients = st.text_input("Enter local specialties (comma-separated):")
+    if st.button("Generate Recipe"):
         recipe = generate_recipe(ingredients, season, cuisine)
-        print("\nAI-Generated Recipe:\n")
-        print(recipe)
-        return
-    elif choice == "5":
-        # Text Input
-        print("\nStep 1: Enter Leftover ingredients")
-        user_input = input("Enter your dietary preferences, cuisine type, and leftover ingredients")
-    else:
-        print("Invalid choice.")
-        return
+        st.subheader("🍲 AI-Generated Recipe")
+        st.write(recipe)
 
-    # Generate Recipe
-    if user_input or image or pdf_text:
-        print("\nGenerating your recipe...")
-        recipe = generate_recipe(user_input, image, pdf_text)
-        print("\nGenerated Recipe:")
-        print(recipe)
-    else:
-        print("\nNo input provided.")
+elif choice == "Leftover Ingredients Recipe":
+    user_input = st.text_input("Enter leftover ingredients and preferred cuisine:")
 
-if __name__ == "__main__":
-    main()
+# Generate recipe when user clicks the button
+if st.button("Generate Recipe"):
+    recipe = generate_recipe(user_input, image, pdf_text)
+    st.subheader("🍽️ AI-Generated Recipe")
+    st.write(recipe)
